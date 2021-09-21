@@ -1,0 +1,128 @@
+import React, { Component } from 'react'
+import axios from 'axios';
+import Swal from 'sweetalert2'
+import {Link} from 'react-router-dom';
+import { ReactSession } from 'react-client-session';
+export default class editmachine extends Component {
+
+    constructor(props) {
+        
+        super(props)
+        this.addFormData = this.addFormData.bind(this);
+          this.state = {
+            data: []
+                  }
+
+          ReactSession.setStoreType("localStorage");
+         const id = ReactSession.get("userid");
+         if(!id)
+         {
+           window.location.href = '/login';
+         }
+          
+          }
+
+          componentDidMount(){
+            const machine_id = this.props.location.state.machine_id;
+            axios.get('http://localhost/sky_laundry/index.php/api/Machines/'+machine_id).then(res => 
+            {
+            
+             this.setState({data: res.data});
+           
+               }); 
+            }
+ 
+
+            addFormData(evt)
+            {
+              evt.preventDefault();
+              const fd = new FormData();
+               const jsonData = {
+                name: this.refs.machinename.value,
+                type: this.refs.type.value,
+                availability: this.refs.availability.value
+                  }
+           
+               const machineid = this.refs.machineid.value;
+                //alert("yes");
+              axios.put('http://localhost/sky_laundry/index.php/api/Machines/'+machineid,jsonData).then(res=>
+              {
+                Swal.fire({
+                    title: 'Updation Success',
+                    text: res.data.data,
+                    type: 'success',
+                    
+                  });
+            
+                 }
+            );
+            }
+
+
+    render() {
+        return (
+            <div className="wrapper">
+                {this.state.data.map((result) => {
+                 return (
+            <div className="content-wrapper">
+  <div className="content-header">
+    <div className="container-fluid">
+     
+      <div className="row">
+        <div className="col-md-8">
+          <div className="card card-primary">
+            <div className="card-header">
+              <h3 className="card-title">Update Machine</h3>
+            </div>
+            {/* /.card-header */}
+            {/* form start */}
+            <form ref={(el) => this.myFormRef = el}  enctype="multipart/form-data">
+              <div className="card-body">
+              <div className="form-group">
+                  <label htmlFor="exampleInputEmail1">Machine#</label>
+                  <input disabled defaultValue={result.id} type="text" className="form-control" id="machineid" ref="machineid" placeholder="Machine Name" />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="exampleInputEmail1">Machine Name</label>
+                  <input  defaultValue={result.name} type="text" className="form-control" id="machinename" ref="machinename" placeholder="Machine Name" />
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="exampleInputPassword1">Type</label>
+                  <input  defaultValue={result.type} type="text" className="form-control" id="type" ref="type" placeholder="Machine Type" />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="exampleInputPassword1">Availability</label>
+                  <select className="form-control" id="availability" ref="availability">
+                    <option>Yes</option>
+                    <option>No</option>
+                  </select>
+                  {/* <input  defaultValue={result.availability} type="text"   placeholder="Availability - Yes/No" /> */}
+                </div>
+                {/* <div className="form-group">
+                  <label htmlFor="exampleInputPassword1">Published on</label>
+                  <input type="date" className="form-control" id="published_on" ref="published_on" placeholder="Published on" />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="exampleInputPassword1">Image</label>
+                  <input required type="file" onChange = {this.fileSelect} className="form-control"  id="bookimg" itemName="bookimg" ref="bookimg"  />
+                </div> */}
+              </div>
+              {/* /.card-body */}
+              <div className="card-footer">
+                <button type="submit" onClick={this.addFormData} className="btn btn-primary">Update Now</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+)
+})}
+          </div>
+        
+        )
+    }
+}
